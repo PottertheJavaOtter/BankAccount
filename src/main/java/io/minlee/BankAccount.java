@@ -5,29 +5,28 @@ import java.util.ArrayList;
 /**
  * Created by minlee on 5/18/16.
  */
-public class BankAccount {
+abstract public class BankAccount {
 
 
     private int accountNumber;
-    private AccountType accountType;
     private double accountBalance;
     private String accountName;
-    private double interestRate;
     private AccountStatus accountStatus;
     private OverdraftProtection overdraftProtection;
-    private ArrayList<String> transaction;
+    private ArrayList<Transaction> ledger;
+    private static int transactionNumber = 10000;
 
-    public BankAccount(AccountType accountType, int accountNumber, double accountBalance, String accountName ){
-        this.accountType = accountType;
+    public BankAccount(int accountNumber, double accountBalance, String accountName ){
         this.accountNumber = accountNumber;
         this.accountBalance = accountBalance;
         this.accountName = accountName;
         accountStatus = AccountStatus.OPEN;
-        transaction = new ArrayList<String>();
-        if(accountType == AccountType.SAVINGS || accountType == AccountType.INVESTMENT){
-            interestRate = 1;
-        }
+        ledger = new ArrayList<>();
         overdraftProtection = OverdraftProtection.ENABLED;
+    }
+
+    public int getAccountNumber(){
+        return accountNumber;
     }
 
     public void setAccountName(String name){
@@ -82,11 +81,13 @@ public class BankAccount {
             if(overdraftProtection == OverdraftProtection.ENABLED) {
                 if(accountBalance >= debit) {
                     deductDebit(debit);
+                    addDebitTransaction(debit);
                     return "Debit approved!";
                 }
             }
             else{
                 deductDebit(debit);
+                addDebitTransaction(debit);
                 return "Debit approved!";
             }
         }
@@ -96,9 +97,23 @@ public class BankAccount {
     public String credit(double credit){
         if(accountStatus == AccountStatus.OPEN){
             addCredit(credit);
+            addCreditTransaction(credit);
             return "Credit approved!";
         }
         return "Credit not approved";
+    }
+
+    private void addCreditTransaction(double credit) {
+        ledger.add(new CreditTransaction(this, credit, transactionNumber));
+        transactionNumber++;
+    }
+    private void addDebitTransaction(double debit) {
+        ledger.add(new DebitTransaction(this, debit, transactionNumber));
+        transactionNumber++;
+    }
+    private void addTransferTransaction(BankAccount transferToAccount, double transferValue) {
+        ledger.add(new Transaction(this, transferToAccount, transferValue, transactionNumber));
+        transactionNumber++;
     }
 
     public void makeTransfer(BankAccount transferToAccount, double transferValue){
@@ -110,12 +125,16 @@ public class BankAccount {
         if(accountStatus == AccountStatus.OPEN && transferToAccount.getStatus() == AccountStatus.OPEN){
             if(accountBalance - transferValue >= 0){
                 makeTransfer(transferToAccount, transferValue);
+                addTransferTransaction(transferToAccount, transferValue);
                 return "Transfer approved!";
             }
         }
         return "Transfer not approved";
     }
 
+    public ArrayList<Transaction> getLedger(){
+        return ledger;
+    }
 
 
 

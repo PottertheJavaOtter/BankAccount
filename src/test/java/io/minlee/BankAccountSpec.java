@@ -14,9 +14,9 @@ public class BankAccountSpec {
 
     @Before
     public void initialize(){
-        checkingAccount = new BankAccount(AccountType.CHECKING, 10000, 10000, "Min");
-        savingsAccount = new BankAccount(AccountType.SAVINGS, 10001, 20000, "Joe");
-        investmentAccount = new BankAccount(AccountType.INVESTMENT, 10003, 30000,"Evelyn");
+        checkingAccount = new CheckingAccount(10000, 10000, "Min");
+        savingsAccount = new SavingsAccount(10001, 20000, "Joe");
+        investmentAccount = new InvestmentAccount(10003, 30000,"Evelyn");
     }
     @Test
     public void setAccountNameTest(){
