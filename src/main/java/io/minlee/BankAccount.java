@@ -43,6 +43,9 @@ abstract public class BankAccount {
                 if(accountBalance == 0){
                     this.accountStatus = accountStatus;
                 }
+                else {
+                    System.out.println("Cannot close account with a balance greater than 0");
+                }
             }
             else{
                 this.accountStatus = accountStatus;
@@ -113,6 +116,7 @@ abstract public class BankAccount {
     }
     private void addTransferTransaction(BankAccount transferToAccount, double transferValue) {
         ledger.add(new Transaction(this, transferToAccount, transferValue, transactionNumber));
+        transferToAccount.getLedger().add(new Transaction(this, transferToAccount, transferValue, transactionNumber));
         transactionNumber++;
     }
 
@@ -132,12 +136,22 @@ abstract public class BankAccount {
         return "Transfer not approved";
     }
 
+    public String getAccountDetails(){
+        String accountDetails = "Account #"+accountNumber;
+        accountDetails+=" "+ this.getClass().getSimpleName();
+        accountDetails+=" "+ getStatus().toString();
+        return accountDetails;
+    }
+
+    public void printTransactionHistory(){
+        for(int i = 0; i < ledger.size(); i++){
+            System.out.println(ledger.get(i).printTransaction());
+        }
+    }
+
     public ArrayList<Transaction> getLedger(){
         return ledger;
     }
-
-
-
 
 
 }
